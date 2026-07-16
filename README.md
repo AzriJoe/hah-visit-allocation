@@ -1,32 +1,31 @@
-# HaH Visit Allocation — Prototype
+# HaH Visit Allocation
 
-A browser-based next-day visit allocation tool for Hospital-at-Home coordinators.
+A responsive next-day digital allocation board for Hospital-at-Home coordinators.
 
-## Run locally
+## Workflow
 
-1. Keep `index.html`, `styles.css`, and `app.js` in the same folder.
-2. Open `index.html` in a modern browser.
-3. Use only fictional or de-identified data during prototype testing.
+1. Tomorrow's Visits
+2. Visit Preparation
+3. Nurses
+4. Allocation Board
+5. Finalise
 
-## Current functions
+## Local preview without OneMap
 
-- Bulk input as `Bed, Initials, Postal Code` or postal codes only
-- Fixed, ad hoc, and cancelled visit labels
-- Multi-select visit purpose plus free text
-- 30/45/60/75-minute buttons plus custom duration
-- Day, 12–9 PM, and 1–10 PM shifts
-- Monday/Wednesday 09:30 first-visit rule
-- Lunch and dinner scheduling
-- Four-visit normal limit with fifth short-visit warning
-- West visits displayed green; other regions yellow
-- Manual nurse assignment or automatic suggestion
-- Optional OneMap postal-code lookup and routing
-- Print / Save as PDF and CSV export
-- Local browser storage
+Open `index.html`. The app works locally and stores data in the browser, but live postal-code validation and routing require Vercel.
 
-## Important prototype limitations
+## Deploy with OneMap on Vercel
 
-- Browser storage is device-specific and is not suitable as a clinical record.
-- Do not enter full patient names, NRIC, unit numbers, diagnoses, or clinical notes.
-- A browser-exposed OneMap token is for prototype use only. The Vercel version should use a secure server-side function.
-- Suggested allocations require coordinator review and approval.
+1. Register for OneMap API access.
+2. Import this GitHub repository into Vercel.
+3. In Vercel Project Settings → Environment Variables, add:
+   - `ONEMAP_EMAIL`
+   - `ONEMAP_PASSWORD`
+4. Redeploy.
+5. Open the Vercel URL and select **Allocate Visits**.
+
+The OneMap credentials remain server-side. They are not stored in browser code.
+
+## Privacy
+
+Use operational identifiers only (bed code, initials, postal code). Do not enter names, NRIC, diagnoses, medication details, unit numbers, or clinical notes. Browser data is device-specific unless a future approved database is added.

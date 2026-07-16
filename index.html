@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f766e" />
+  <title>HaH Visit Allocation</title>
+  <link rel="stylesheet" href="styles.css?v=1" />
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <h1>HaH Visit Allocation</h1>
+      <p>Next-day coordinator allocation board</p>
+    </div>
+    <div class="header-actions">
+      <label class="date-label">Allocation date <input id="allocationDate" type="date" /></label>
+      <button id="settingsBtn" class="button secondary" type="button">Settings</button>
+    </div>
+  </header>
+
+  <nav id="workflowNav" class="workflow-nav" aria-label="Workflow">
+    <button data-view="visits" class="active">1. Tomorrow's Visits</button>
+    <button data-view="preparation">2. Visit Preparation</button>
+    <button data-view="nurses">3. Nurses</button>
+    <button data-view="board">4. Allocation Board</button>
+    <button data-view="finalise">5. Finalise</button>
+  </nav>
+
+  <main>
+    <section id="view-visits" class="view active">
+      <div class="section-heading">
+        <div><h2>Tomorrow's Visits</h2><p>Paste one visit per line. Recommended: <code>A12, JT, 529510</code></p></div>
+        <div class="pill" id="visitCountPill">0 visits</div>
+      </div>
+      <div class="card input-card">
+        <label for="bulkInput">Mass input</label>
+        <textarea id="bulkInput" rows="7" placeholder="A12, JT, 529510&#10;B03, MS, 460123&#10;C8, KL, 651234"></textarea>
+        <div class="button-row">
+          <button id="importVisitsBtn" class="button primary" type="button">Import visits</button>
+          <button id="addBlankVisitBtn" class="button secondary" type="button">Add blank visit</button>
+          <button id="clearBulkBtn" class="button ghost" type="button">Clear box</button>
+        </div>
+        <p class="helper">Accepts comma-separated, tab-separated, or space-separated rows. Bed format: letter followed by numbers, without a dash.</p>
+      </div>
+      <div id="visitImportFeedback" class="feedback" aria-live="polite"></div>
+      <div id="visitsTableWrap" class="table-wrap"></div>
+    </section>
+
+    <section id="view-preparation" class="view">
+      <div class="section-heading">
+        <div><h2>Visit Preparation</h2><p>Complete the task, duration and timing before allocation.</p></div>
+        <div class="pill" id="readyCountPill">0 / 0 ready</div>
+      </div>
+      <div id="preparationList" class="stack"></div>
+    </section>
+
+    <section id="view-nurses" class="view">
+      <div class="section-heading">
+        <div><h2>Nurses</h2><p>Confirm tomorrow's roster and start/end locations.</p></div>
+        <button id="addNurseBtn" class="button primary" type="button">Add nurse</button>
+      </div>
+      <div id="nurseList" class="nurse-grid"></div>
+    </section>
+
+    <section id="view-board" class="view">
+      <div class="section-heading board-heading">
+        <div><h2>Allocation Board</h2><p>Travel is shown between visits when OneMap routing is available.</p></div>
+        <div class="button-row">
+          <button id="allocateBtn" class="button primary" type="button">Allocate Visits</button>
+          <button id="resetAllocationBtn" class="button danger-outline" type="button">Reset Allocation</button>
+          <select id="nurseFilter" aria-label="Filter allocation board by nurse"><option value="all">All nurses</option></select>
+        </div>
+      </div>
+      <div id="routingStatus" class="feedback"></div>
+      <div id="allocationSummary" class="summary-grid"></div>
+      <div id="boardGrid" class="board-grid"></div>
+      <div id="unallocatedPanel" class="unallocated-panel"></div>
+    </section>
+
+    <section id="view-finalise" class="view">
+      <div class="section-heading"><div><h2>Finalise</h2><p>Review the plan before sharing it with the team.</p></div></div>
+      <div id="finalChecks" class="card"></div>
+      <div class="button-row final-actions">
+        <button id="confirmAllocationBtn" class="button primary" type="button">Confirm allocation</button>
+        <button id="printBtn" class="button secondary" type="button">Print / Save PDF</button>
+        <button id="exportCsvBtn" class="button secondary" type="button">Export CSV</button>
+        <button id="unlockBtn" class="button ghost" type="button">Unlock draft</button>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="settingsDialog">
+    <form method="dialog" class="dialog-card">
+      <div class="dialog-title"><h2>Operational settings</h2><button value="cancel" class="icon-button" aria-label="Close">×</button></div>
+      <div class="form-grid">
+        <label>JMC postal code<input id="jmcPostal" inputmode="numeric" maxlength="6" placeholder="Enter 6 digits" /></label>
+        <label>NUH postal code<input id="nuhPostal" inputmode="numeric" maxlength="6" placeholder="119074" /></label>
+        <label>Arrival/parking buffer (min)<input id="arrivalBuffer" type="number" min="0" max="30" step="5" /></label>
+        <label>Short visit threshold (min)<input id="shortThreshold" type="number" min="15" max="45" step="5" /></label>
+      </div>
+      <div class="settings-note">OneMap credentials are stored in Vercel environment variables, never in this browser.</div>
+      <div class="button-row"><button id="saveSettingsBtn" value="default" class="button primary">Save settings</button><button value="cancel" class="button secondary">Cancel</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="visitDialog">
+    <form method="dialog" class="dialog-card" id="visitDialogForm">
+      <div class="dialog-title"><h2 id="visitDialogTitle">Visit</h2><button value="cancel" class="icon-button" aria-label="Close">×</button></div>
+      <input id="dialogVisitId" type="hidden" />
+      <div class="form-grid">
+        <label>Bed<input id="dialogBed" autocomplete="off" /></label>
+        <label>Initials<input id="dialogInitials" autocomplete="off" maxlength="5" /></label>
+        <label>Postal code<input id="dialogPostal" inputmode="numeric" maxlength="6" /></label>
+        <label>Type<select id="dialogType"><option>Fixed</option><option>Ad hoc</option><option>Cancelled</option></select></label>
+        <label>Duration (minutes)<input id="dialogDuration" type="number" min="15" max="240" step="5" /></label>
+        <label>Timing<select id="dialogTiming"><option value="Flexible">Flexible</option><option value="AM">AM</option><option value="PM">PM</option><option value="Exact">Exact time</option><option value="Window">Time window</option></select></label>
+        <label id="exactTimeLabel">Exact time<input id="dialogExactTime" type="time" /></label>
+        <label id="windowStartLabel">Window start<input id="dialogWindowStart" type="time" /></label>
+        <label id="windowEndLabel">Window end<input id="dialogWindowEnd" type="time" /></label>
+        <label>Assigned nurse<select id="dialogAssignedNurse"><option value="">Auto</option></select></label>
+      </div>
+      <fieldset><legend>Visit purpose(s)</legend><div id="dialogPurposes" class="check-grid"></div></fieldset>
+      <label>Other purpose<input id="dialogOtherPurpose" /></label>
+      <label>Operational notes<textarea id="dialogNotes" rows="3"></textarea></label>
+      <div class="button-row"><button id="saveVisitDialogBtn" value="default" class="button primary">Save visit</button><button value="cancel" class="button secondary">Cancel</button></div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="app.js?v=1"></script>
+</body>
+</html>
