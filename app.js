@@ -489,20 +489,32 @@ $('#addCaseBtn').onclick=()=>{state.cases.push(newCase());renderCases();save(fal
 $('#clearCasesBtn').onclick=()=>{if(confirm('Clear all visits?')){state.cases=[];renderCases();save(false)}};
 $('#addNurseBtn').onclick=()=>{state.nurses.push(newNurse());renderNurses();save(false)};
 $('#generateBtn').onclick=generate;
-$('#resetAllocationBtn').onclick=()=>{
-  if(!state.schedule.length && !state.cases.some(c=>c.assignedNurseId)){
+function resetAllocation(){
+  const hasAssignments = state.schedule.length > 0 || state.cases.some(c => c.assignedNurseId);
+  if(!hasAssignments){
     alert('There is no nurse assignment to reset.');
     return;
   }
-  if(confirm('Reset all nurse assignments? Visit details and the nurse roster will be kept.')){
-    state.schedule=[];
-    state.cases.forEach(c=>{c.assignedNurseId=''});
-    renderCases();
-    renderSchedule();
-    save(false);
-    alert('Nurse assignments have been reset.');
-  }
-};
+  const proceed = window.confirm('Reset all nurse assignments? Visit details and the nurse roster will be kept.');
+  if(!proceed) return;
+
+  state.schedule = [];
+  state.cases = state.cases.map(c => ({ ...c, assignedNurseId: '' }));
+
+  const filter = $('#nurseViewFilter');
+  if(filter) filter.value = '';
+
+  save(false);
+  renderCases();
+  renderSchedule();
+  openTab('allocation');
+  alert('Nurse assignments have been reset.');
+}
+
+const resetButton = $('#resetAllocationBtn');
+if(resetButton){
+  resetButton.addEventListener('click', resetAllocation);
+}
 $('#printBtn').onclick=()=>{if(!state.schedule.length){alert('Generate an allocation first.');return}window.print()};
 $('#csvBtn').onclick=exportCSV;
 $('#saveBtn').onclick=()=>save(true);

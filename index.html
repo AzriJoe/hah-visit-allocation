@@ -74,7 +74,7 @@
       <div class="card">
         <div class="section-heading">
           <div><h2>Suggested allocation</h2><p>The coordinator remains responsible for final allocation and sequencing.</p></div>
-          <div class="allocation-tools"><label class="nurse-filter-label">View<select id="nurseViewFilter"><option value="">All nurses</option></select></label><div class="button-row compact"><button id="generateBtn">Generate</button><button id="resetAllocationBtn" class="danger-outline">Reset assignment</button><button id="printBtn" class="secondary">Print / PDF</button><button id="csvBtn" class="secondary">Export CSV</button></div></div>
+          <div class="allocation-tools"><label class="nurse-filter-label">View<select id="nurseViewFilter"><option value="">All nurses</option></select></label><div class="button-row compact"><button id="generateBtn">Generate</button><button id="resetAllocationBtn" type="button" class="danger-outline">Reset assignment</button><button id="printBtn" class="secondary">Print / PDF</button><button id="csvBtn" class="secondary">Export CSV</button></div></div>
         </div>
         <div id="summary" class="summary-grid"></div>
         <div id="warnings" class="warnings"></div>
@@ -139,6 +139,6 @@
     </article>
   </template>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=0.1.4"></script>
 </body>
 </html>
